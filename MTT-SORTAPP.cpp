@@ -19,6 +19,11 @@
 //split up array into as many threads used, what to do with offset?
 
 //race conditions/mutex should be in merge probably
+//need to wait until all subarrays are sorted to be able to merge them
+
+//do we even need mutex?
+
+//could just have 2 sorting threads like prompt suggests
 
 /*
 pthread_mutex_t mergeLock = PTHREAD_MUTEX_INITIALIZER; //lock
@@ -26,6 +31,8 @@ pthread_cond_t subarray_sort = PTHREAD_COND_INITIALIZER; //cond variable
 bool arraySorted = 0; //state variable
 const int THREAD_POOL_SIZE = 4;
 */
+std::vector<int> original_array;
+std::vector<int> sorted_array;
 
 //merge the different subarrays handled by threads
 void merge() {
@@ -33,7 +40,13 @@ void merge() {
 }
 
 //actual mergesort algorithm
-void mergesort() {
+void mergesort(std::vector<int> arr,int firstI,int lastI) {
+    if(firstI<lastI) { //making sure subarray isnt too small
+        int mid = (firstI+lastI)/2;
+        mergesort(arr,firstI,mid);
+        mergesort(arr,mid+1,lastI);
+        //merge(arr,firstI,mid,lastI);
+    } 
 
 }
 
