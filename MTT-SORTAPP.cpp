@@ -31,6 +31,7 @@ pthread_cond_t subarray_sort = PTHREAD_COND_INITIALIZER; //cond variable
 bool arraySorted = 0; //state variable
 const int THREAD_POOL_SIZE = 4;
 */
+
 std::vector<int> original_array;
 std::vector<int> sorted_array;
 
@@ -45,18 +46,20 @@ void mergesort(std::vector<int> arr,int firstI,int lastI) {
         int mid = (firstI+lastI)/2;
         mergesort(arr,firstI,mid);
         mergesort(arr,mid+1,lastI);
-        //merge(arr,firstI,mid,lastI);
+        merge(arr,firstI,mid,lastI);
     } 
 
 }
 
+/*
 //prevents race conditions using mutex or semaphore locks
 void lock() { //can rename
 
 }
+*/
 
-//function that creates threads/manages threads
-void threadcreation() { //rename later
+//function that distributes threads/manages threads
+void *manage_threads(void* arg) { 
 
 }
 
