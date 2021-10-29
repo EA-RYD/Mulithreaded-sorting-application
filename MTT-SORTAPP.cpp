@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/time.h>
+#include <iostream>
  //<WIP> Everything subject to change including functions
 //Hello world
 //Function: Merge,MergeSort,Semaphore or Mutex, Main, Thread Creation?
@@ -36,7 +37,44 @@ std::vector<int> original_array;
 std::vector<int> sorted_array;
 
 //merge the different subarrays handled by threads
-void merge() {
+void merge(std::vector<int> arr,int firstI,int mid,int lastI) {
+
+    std::vector<int> temp;
+    int n1, n2;//splitting array into left and right
+    n1= firstI;
+    n2= mid +1;
+
+    while(n1<= mid && n2<= lastI)
+    {
+        if (arr[n1] <= arr[n2]) {
+			temp.push_back(arr[n1]);
+			n1++;
+		}
+		else {
+			temp.push_back(arr[n2]);
+			n2++;
+		}
+
+    }
+
+    while (n1 <= mid) {
+		temp.push_back(arr[n1]);
+		n1++;
+	}
+
+	while (n2 <= lastI) {
+		temp.push_back(arr[n2]);
+		n2++;
+	}
+
+	for (int n1 = firstI; n1 <= lastI; n1++)
+    {
+		arr[n1] = temp[n1 - firstI];
+    }
+
+    
+
+
 
 }
 
@@ -59,12 +97,38 @@ void lock() { //can rename
 */
 
 //function that distributes threads/manages threads
-void *manage_threads(void* arg) { 
+/*void *manage_threads(void* arg) { 
 
-}
+}*/
 
 //generates input,displays output,maybe measure performance in some way
 int main() {
 
+    //std::vector<int> original_array;
+    //std::vector<int> sorted_array;
+
+	int n;
+	std::vector<int> arr;
+
+	std::cout << "Enter Size of Vector : ";
+	std::cin >> n;
+
+	arr = std::vector<int>(n);
+	std::cout << "Enter Elements of Vector : ";
+	for (int i = 0; i < n; i++) {
+		std::cin >> arr[i];
+	}
+
+    std::cout << "Vector before sorting: ";
+	for (int i = 0; i < n; i++) {
+		std::cout << arr[i]<<" ";
+	}
+	mergesort(arr, 0, n - 1);
+
+	std::cout << "\nVector Obtained After Sorting: ";
+	for (int i = 0; i < n; i++) 
+    {
+		std::cout << arr[i] << ' ';
+	}
     return 0;
 }
