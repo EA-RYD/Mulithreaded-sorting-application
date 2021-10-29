@@ -67,9 +67,9 @@ void merge(std::vector<int> arr,int firstI,int mid,int lastI) {
 		n2++;
 	}
 
-	for (int n1 = firstI; n1 <= lastI; n1++)
+	for (int k = firstI; k <= lastI; k++)
     {
-		arr[n1] = temp[n1 - firstI];
+		arr[k] = temp[k - firstI];
     }
 
     
