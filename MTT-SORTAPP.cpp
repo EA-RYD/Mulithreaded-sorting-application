@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sys/time.h>
  //<WIP> Everything subject to change including functions
-
+//Hello world
 //Function: Merge,MergeSort,Semaphore or Mutex, Main, Thread Creation?
 // Start out with 4 threads and just reuse like in a thread pool?
 //Things to consider: thread pool, global array, synchronization
