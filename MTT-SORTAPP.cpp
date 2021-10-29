@@ -37,7 +37,7 @@ std::vector<int> original_array;
 std::vector<int> sorted_array;
 
 //merge the different subarrays handled by threads
-void merge(std::vector<int> arr,int firstI,int mid,int lastI) {
+void merge(std::vector<int> &arr,int firstI,int mid,int lastI) {
 
     std::vector<int> temp;
     int n1, n2;//splitting array into left and right
@@ -79,7 +79,7 @@ void merge(std::vector<int> arr,int firstI,int mid,int lastI) {
 }
 
 //actual mergesort algorithm
-void mergesort(std::vector<int> arr,int firstI,int lastI) {
+void mergesort(std::vector<int> &arr,int firstI,int lastI) {
     if(firstI<lastI) { //making sure subarray isnt too small
         int mid = (firstI+lastI)/2;
         mergesort(arr,firstI,mid);
