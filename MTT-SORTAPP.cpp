@@ -32,12 +32,13 @@ pthread_cond_t subarray_sort = PTHREAD_COND_INITIALIZER; //cond variable
 bool arraySorted = 0; //state variable
 const int THREAD_POOL_SIZE = 4;
 */
-
-std::vector<int> original_array;
-std::vector<int> sorted_array;
+int arraySize = 20;
+int numOfThreads = 4;
+int subsection = 0;
+std::vector<int> arr;
 
 //merge the different subarrays handled by threads
-void merge(std::vector<int> &arr,int firstI,int mid,int lastI) {
+void merge(int firstI,int mid,int lastI) {
 
     std::vector<int> temp;
     int n1, n2;//splitting array into left and right
@@ -72,19 +73,15 @@ void merge(std::vector<int> &arr,int firstI,int mid,int lastI) {
 		arr[k] = temp[k - firstI];
     }
 
-    
-
-
-
 }
 
 //actual mergesort algorithm
-void mergesort(std::vector<int> &arr,int firstI,int lastI) {
+void mergesort(int firstI,int lastI) {
     if(firstI<lastI) { //making sure subarray isnt too small
         int mid = (firstI+lastI)/2;
-        mergesort(arr,firstI,mid);
-        mergesort(arr,mid+1,lastI);
-        merge(arr,firstI,mid,lastI);
+        mergesort(firstI,mid);
+        mergesort(mid+1,lastI);
+        merge(firstI,mid,lastI);
     } 
 
 }
@@ -97,9 +94,22 @@ void lock() { //can rename
 */
 
 //function that distributes threads/manages threads
-/*void *manage_threads(void* arg) { 
+void * merge_sort_threads(void* thread_id) { 
+    int threadNum = subsection;
+    int subsectionSize = arraySize/threadNum;
+    subsection++;
+    int firstI = threadNum  * subsectionSize;
+    int lastI = (threadNum + 1 * subsectionSize) - 1;
+    int midI = (firstI+lastI)/2;
 
-}*/
+    if(firstI<lastI) { //making sure subarray isnt too small
+        int mid = (firstI+lastI)/2;
+        mergesort(firstI,mid);
+        mergesort(mid+1,lastI);
+        merge(firstI,mid,lastI);
+    } 
+
+}
 
 //generates input,displays output,maybe measure performance in some way
 int main() {
@@ -107,26 +117,36 @@ int main() {
     //std::vector<int> original_array;
     //std::vector<int> sorted_array;
 
-	int n;
-	std::vector<int> arr;
-
-	std::cout << "Enter Size of Vector : ";
-	std::cin >> n;
-
-	arr = std::vector<int>(n);
+    /*
+	arr = std::vector<int>(arraySize);
 	std::cout << "Enter Elements of Vector : ";
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < arraySize; i++) {
 		std::cin >> arr[i];
 	}
+    */
+    arr = {5,8,2,6,8,9,3,6,8,9,2,1,1,4,4,3,1,8,2,9};
 
     std::cout << "Vector before sorting: ";
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < arraySize; i++) {
 		std::cout << arr[i]<<" ";
 	}
-	mergesort(arr, 0, n - 1);
+	// mergesort(0, n - 1);
+
+    pthread_t tid[numOfThreads];
+
+    for(int i=0;i<numOfThreads;i++) {
+        pthread_create(&tid[i],NULL,merge_sort_threads,(void *)&tid[i]);
+    }
+
+    for(int i=0;i<numOfThreads;i++) {
+        pthread_join(tid[i],NULL);
+    }
+
+
+
 
 	std::cout << "\nVector Obtained After Sorting: ";
-	for (int i = 0; i < n; i++) 
+	for (int i = 0; i < arraySize; i++) 
     {
 		std::cout << arr[i] << ' ';
 	}
