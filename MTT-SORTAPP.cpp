@@ -6,35 +6,15 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <iostream>
- //<WIP> Everything subject to change including functions
-//Hello world
-//Function: Merge,MergeSort,Semaphore or Mutex, Main, Thread Creation?
-// Start out with 4 threads and just reuse like in a thread pool?
-//Things to consider: thread pool, global array, synchronization
 
-//struct for shared data between threads?
 
-//Each thread recursively performs mergesort on the portion of the array
-//they are responsible for
-
-//split up array into as many threads used, what to do with offset?
-
-//race conditions/mutex should be in merge probably
-//need to wait until all subarrays are sorted to be able to merge them
-
-//do we even need mutex?
-
-//could just have 2 sorting threads like prompt suggests
-
-/*
 pthread_mutex_t mergeLock = PTHREAD_MUTEX_INITIALIZER; //lock
 pthread_cond_t subarray_sort = PTHREAD_COND_INITIALIZER; //cond variable
-bool arraySorted = 0; //state variable
-const int THREAD_POOL_SIZE = 4;
-*/
-int arraySize = 20;
+//bool arraySorted = 0; //state variable
 int numOfThreads = 4;
+int arraySize = 20;
 int subsection = 0;
+std::vector<int> threadsDone = {0,0,0,0};
 std::vector<int> arr;
 
 //merge the different subarrays handled by threads
@@ -71,7 +51,9 @@ void merge(int firstI,int mid,int lastI) {
 	for (int k = firstI; k <= lastI; k++)
     {
 		arr[k] = temp[k - firstI];
+        //std::cout << arr[k] << " ";
     }
+    
 
 }
 
@@ -86,20 +68,13 @@ void mergesort(int firstI,int lastI) {
 
 }
 
-/*
-//prevents race conditions using mutex or semaphore locks
-void lock() { //can rename
-
-}
-*/
-
 //function that distributes threads/manages threads
-void * merge_sort_threads(void* thread_id) { 
+void *sort_threads(void* arg) { 
     int threadNum = subsection;
-    int subsectionSize = arraySize/threadNum;
+    int subsectionSize = arraySize/numOfThreads;
     subsection++;
     int firstI = threadNum  * subsectionSize;
-    int lastI = (threadNum + 1 * subsectionSize) - 1;
+    int lastI = (threadNum + 1) * subsectionSize - 1;
     int midI = (firstI+lastI)/2;
 
     if(firstI<lastI) { //making sure subarray isnt too small
@@ -108,47 +83,55 @@ void * merge_sort_threads(void* thread_id) {
         mergesort(mid+1,lastI);
         merge(firstI,mid,lastI);
     } 
-
+    return NULL;
 }
 
+/*
+void *merge_thread(void* arg) {
+    std::vector<int> temp(arraySize);
+
+}
+*/
 //generates input,displays output,maybe measure performance in some way
 int main() {
-
     //std::vector<int> original_array;
     //std::vector<int> sorted_array;
 
+    
+	//arr = std::vector<int>(arraySize);
     /*
-	arr = std::vector<int>(arraySize);
 	std::cout << "Enter Elements of Vector : ";
 	for (int i = 0; i < arraySize; i++) {
 		std::cin >> arr[i];
 	}
     */
+    
     arr = {5,8,2,6,8,9,3,6,8,9,2,1,1,4,4,3,1,8,2,9};
 
-    std::cout << "Vector before sorting: ";
+    std::cout << "Vector before sorting:\n";
 	for (int i = 0; i < arraySize; i++) {
 		std::cout << arr[i]<<" ";
 	}
-	// mergesort(0, n - 1);
-
-    pthread_t tid[numOfThreads];
-
-    for(int i=0;i<numOfThreads;i++) {
-        pthread_create(&tid[i],NULL,merge_sort_threads,(void *)&tid[i]);
+    std::cout << std::endl;
+    
+    pthread_t tid[numOfThreads]; //ids of sorting threads
+    for(long i=0;i<numOfThreads;i++) { //creation of sorting threads
+        pthread_create(&tid[i],NULL,sort_threads,NULL);
     }
 
-    for(int i=0;i<numOfThreads;i++) {
-        pthread_join(tid[i],NULL);
+    for(long i=0;i<numOfThreads;i++) { //joining sorting threads to make sure they complete
+        pthread_join(tid[i], NULL);
     }
+    
+    pthread_t tid_merge; //merging thread
+    //pthread_create(&tid_merge,NULL,merge_thread)
 
 
-
-
-	std::cout << "\nVector Obtained After Sorting: ";
+	std::cout << "\nVector Obtained After Sorting\n";
 	for (int i = 0; i < arraySize; i++) 
     {
 		std::cout << arr[i] << ' ';
 	}
+    
     return 0;
 }
