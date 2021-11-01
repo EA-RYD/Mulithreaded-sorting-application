@@ -122,8 +122,13 @@ int main() {
     for(long i=0;i<numOfThreads;i++) { //joining sorting threads to make sure they complete
         pthread_join(tid[i], NULL);
     }
-    
-    pthread_t tid_merge; //merging thread
+    // merging the threads
+    //pthread_t tid_merge; //merging thread
+
+    merge(0, (arraySize/2 -1)/2, arraySize/2 - 1);
+    merge(arraySize/2, arraySize/2 + (arraySize - 1 - arraySize/2)/2 , arraySize - 1);
+    merge(0, (arraySize -1)/2, arraySize - 1);
+
     //pthread_create(&tid_merge,NULL,merge_thread)
 
 
