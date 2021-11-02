@@ -62,6 +62,7 @@ void mergesort(int firstI,int lastI) {
         mergesort(mid+1,lastI);
         merge(firstI,mid,lastI);
     } 
+
 }
 
 //function that distributes threads/manages threads
@@ -131,9 +132,9 @@ int main() {
     // merging the threads
     pthread_t tid_merge; //merging thread
     pthread_create(&tid_merge,NULL,merge_thread,NULL);
-    pthread_join(tid_merge,NULL);
+    //pthread_join(tid_merge,NULL);
 
-    //helllllllloo
+    
 
 
 	std::cout << "\nVector Obtained After Sorting\n";
