@@ -8,13 +8,10 @@
 #include <iostream>
 
 
-pthread_mutex_t mergeLock = PTHREAD_MUTEX_INITIALIZER; //lock
-pthread_cond_t subarray_sort = PTHREAD_COND_INITIALIZER; //cond variable
-//bool arraySorted = 0; //state variable
 int numOfThreads = 4;
-int arraySize = 20;
+int arraySize = 0;
 int subsection = 0;
-std::vector<int> threadsDone = {0,0,0,0};
+
 std::vector<int> arr;
 
 //merge the different subarrays handled by threads
@@ -65,7 +62,6 @@ void mergesort(int firstI,int lastI) {
         mergesort(mid+1,lastI);
         merge(firstI,mid,lastI);
     } 
-
 }
 
 //function that distributes threads/manages threads
@@ -77,6 +73,13 @@ void *sort_threads(void* arg) {
     int lastI = (threadNum + 1) * subsectionSize - 1;
     int midI = (firstI+lastI)/2;
 
+    if(arraySize % numOfThreads != 0) {
+        if(threadNum == numOfThreads - 1) {
+            lastI = arraySize - 1;
+            midI = (firstI+lastI)/2;
+        } 
+    }
+
     if(firstI<lastI) { //making sure subarray isnt too small
         int mid = (firstI+lastI)/2;
         mergesort(firstI,mid);
@@ -86,12 +89,14 @@ void *sort_threads(void* arg) {
     return NULL;
 }
 
-/*
-void *merge_thread(void* arg) {
-    std::vector<int> temp(arraySize);
 
+void *merge_thread(void* arg) {
+    merge(0, (arraySize/2 -1)/2, arraySize/2 - 1);
+    merge(arraySize/2, arraySize/2 + (arraySize - 1 - arraySize/2)/2 , arraySize - 1);
+    merge(0, (arraySize -1)/2, arraySize - 1);
+    return NULL;
 }
-*/
+
 //generates input,displays output,maybe measure performance in some way
 int main() {
     //std::vector<int> original_array;
@@ -106,7 +111,8 @@ int main() {
 	}
     */
     
-    arr = {5,8,2,6,8,9,3,6,8,9,2,1,1,4,4,3,1,8,2,9};
+    arr = {5,8,2,6,8,9,3,6,8,9,2,1,1,4,4,3,1,8,2,9,5,10,8};
+    arraySize = arr.size();
 
     std::cout << "Vector before sorting:\n";
 	for (int i = 0; i < arraySize; i++) {
@@ -123,13 +129,11 @@ int main() {
         pthread_join(tid[i], NULL);
     }
     // merging the threads
-    //pthread_t tid_merge; //merging thread
+    pthread_t tid_merge; //merging thread
+    pthread_create(&tid_merge,NULL,merge_thread,NULL);
+    pthread_join(tid_merge,NULL);
 
-    merge(0, (arraySize/2 -1)/2, arraySize/2 - 1);
-    merge(arraySize/2, arraySize/2 + (arraySize - 1 - arraySize/2)/2 , arraySize - 1);
-    merge(0, (arraySize -1)/2, arraySize - 1);
-
-    //pthread_create(&tid_merge,NULL,merge_thread)
+    
 
 
 	std::cout << "\nVector Obtained After Sorting\n";
@@ -137,6 +141,6 @@ int main() {
     {
 		std::cout << arr[i] << ' ';
 	}
-    //hello
+
     return 0;
 }
