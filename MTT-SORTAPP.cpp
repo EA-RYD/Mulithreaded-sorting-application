@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <vector>
-#include <queue>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <iostream>
 
 
-int numOfThreads = 4;
-int arraySize = 0;
+int numOfThreads;
+int arraySize;
 int subsection = 0;
 
+std::vector<std::pair<int,int>> subarrayIndice; //first and last indice of each subarray
 std::vector<int> arr;
+std::vector<int> result;
 
 //merge the different subarrays handled by threads
 void merge(int firstI,int mid,int lastI) {
@@ -87,33 +88,47 @@ void *sort_threads(void* arg) {
         mergesort(mid+1,lastI);
         merge(firstI,mid,lastI);
     } 
+    std::pair<int,int> location = {firstI,lastI};
+    //std::cout << std::endl << "firstI: " << firstI <<  " lastI: " << lastI << std::endl;
+    subarrayIndice.push_back(location);
+
     return NULL;
 }
 
 
 void *merge_thread(void* arg) {
-    merge(0, (arraySize/2 -1)/2, arraySize/2 - 1);
-    merge(arraySize/2, arraySize/2 + (arraySize - 1 - arraySize/2)/2 , arraySize - 1);
-    merge(0, (arraySize -1)/2, arraySize - 1);
+   int firstI = 0;
+   int lastI;
+   int midI;
+   
+   for (int i = 0; i < numOfThreads-1; i++) { //loops ot join 
+       if (i == numOfThreads) {
+           lastI = subarrayIndice[i].second;
+       } else {
+           lastI = subarrayIndice[i+1].second;
+       }
+       midI = subarrayIndice[i+1].first - 1;
+       //std::cout << std::endl << "firstI: " << firstI << " midI: " << midI << " lastI: " << lastI << std::endl;
+       merge(firstI,midI,lastI); 
+       
+   }
     return NULL;
 }
 
 //generates input,displays output,maybe measure performance in some way
 int main() {
-    //std::vector<int> original_array;
-    //std::vector<int> sorted_array;
+    int lowerLimit = 0;
+    int upperLimit = 11;
+    int n = 57;
+    for (int i = 0; i < n; i++) { //generates n random integers from 0 to 10 and inserts into array
+        arr.push_back(lowerLimit + (upperLimit - lowerLimit) * ((double)rand() / RAND_MAX));
+    }
 
-    
-	//arr = std::vector<int>(arraySize);
-    /*
-	std::cout << "Enter Elements of Vector : ";
-	for (int i = 0; i < arraySize; i++) {
-		std::cin >> arr[i];
-	}
-    */
-    
-    arr = {5,8,2,6,8,9,3,6,8,9,2,1,1,4,4,3,1,8,2,9,5,10,8};
+    numOfThreads = 4;
+  
+    //arr = {5,8,2,6,8,9,3,6,8,9,2,-1,1,4,4,3,1,8,2,9,5,1};
     arraySize = arr.size();
+    std::cout << std::endl << arraySize << std::endl;
 
     std::cout << "Vector before sorting:\n";
 	for (int i = 0; i < arraySize; i++) {
@@ -129,14 +144,14 @@ int main() {
     for(long i=0;i<numOfThreads;i++) { //joining sorting threads to make sure they complete
         pthread_join(tid[i], NULL);
     }
+  
+    
     // merging the threads
     pthread_t tid_merge; //merging thread
     pthread_create(&tid_merge,NULL,merge_thread,NULL);
-    //pthread_join(tid_merge,NULL);
+    pthread_join(tid_merge,NULL);
 
-    
-
-
+     
 	std::cout << "\nVector Obtained After Sorting\n";
 	for (int i = 0; i < arraySize; i++) 
     {
