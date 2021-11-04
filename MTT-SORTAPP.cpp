@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <iostream>
-
+#include <time.h>
 
 int numOfThreads;
 int arraySize;
@@ -120,12 +120,16 @@ int main() {
     int lowerLimit = 0;
     int upperLimit = 11;
     int n = 57;
+    srand(100);
     for (int i = 0; i < n; i++) { //generates n random integers from 0 to 10 and inserts into array
         arr.push_back(lowerLimit + (upperLimit - lowerLimit) * ((double)rand() / RAND_MAX));
+        
     }
-
+    clock_t t1, t2;
+    
     numOfThreads = 4;
-  
+    t1 = clock();
+    //double startTime = omp_get_wtime();
     //arr = {5,8,2,6,8,9,3,6,8,9,2,-1,1,4,4,3,1,8,2,9,5,1};
     arraySize = arr.size();
     std::cout << std::endl << arraySize << std::endl;
@@ -151,12 +155,15 @@ int main() {
     pthread_create(&tid_merge,NULL,merge_thread,NULL);
     pthread_join(tid_merge,NULL);
 
+    t2 = clock();
      
 	std::cout << "\nVector Obtained After Sorting\n";
 	for (int i = 0; i < arraySize; i++) 
     {
 		std::cout << arr[i] << ' ';
 	}
-
+    std::cout<<std::endl;
+    double secsElapsed = (t2 - t1)/(double)CLOCKS_PER_SEC;
+    std::cout<<secsElapsed<<std::endl;
     return 0;
 }
