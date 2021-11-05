@@ -13,7 +13,7 @@ int subsection = 0;
 
 std::vector<std::pair<int,int>> subarrayIndice; //first and last indice of each subarray
 std::vector<int> arr;
-std::vector<int> result;
+
 
 //merge the different subarrays handled by threads
 void merge(int firstI,int mid,int lastI) {
@@ -95,7 +95,7 @@ void *sort_threads(void* arg) {
     return NULL;
 }
 
-
+//function ran by merge thread to sort subarrays assigned to each thread
 void *merge_thread(void* arg) {
    int firstI = 0;
    int lastI;
@@ -119,7 +119,7 @@ void *merge_thread(void* arg) {
 int main() {
     int lowerLimit = 0;
     int upperLimit = 11;
-    int n = 57;
+    int n = 60;
     srand(100);
     for (int i = 0; i < n; i++) { //generates n random integers from 0 to 10 and inserts into array
         arr.push_back(lowerLimit + (upperLimit - lowerLimit) * ((double)rand() / RAND_MAX));
@@ -129,10 +129,7 @@ int main() {
     
     numOfThreads = 4;
     t1 = clock();
-    //double startTime = omp_get_wtime();
-    //arr = {5,8,2,6,8,9,3,6,8,9,2,-1,1,4,4,3,1,8,2,9,5,1};
     arraySize = arr.size();
-    std::cout << std::endl << arraySize << std::endl;
 
     std::cout << "Vector before sorting:\n";
 	for (int i = 0; i < arraySize; i++) {
@@ -162,8 +159,8 @@ int main() {
     {
 		std::cout << arr[i] << ' ';
 	}
-    std::cout<<std::endl;
+    std::cout<<std::endl<<std::endl;
     double secsElapsed = (t2 - t1)/(double)CLOCKS_PER_SEC;
-    std::cout<<secsElapsed<<std::endl;
+    std::cout<<"Time Elapsed in seconds: " << secsElapsed<<std::endl;
     return 0;
 }
