@@ -3,9 +3,9 @@
 #include <vector>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <iostream>
-#include <time.h>
+#include <chrono>
+
 
 int numOfThreads;
 int arraySize;
@@ -119,25 +119,27 @@ void *merge_thread(void* arg) {
 int main() {
     int lowerLimit = 0;
     int upperLimit = 11;
-    int n = 60;
-    srand(100);
-    for (int i = 0; i < n; i++) { //generates n random integers from 0 to 10 and inserts into array
+    long int n = 1000000;
+    srand(1001);
+    for (long int i = 0; i < n; i++) { //generates n random integers from 0 to 10 and inserts into array
         arr.push_back(lowerLimit + (upperLimit - lowerLimit) * ((double)rand() / RAND_MAX));
         
     }
-    clock_t t1, t2;
+    typedef std::chrono::high_resolution_clock Clock; //high precision clock in milliseconds
+    //clock_t t1, t2;
     
-    numOfThreads = 4;
-    t1 = clock();
+    numOfThreads = 6;
+    //t1 = clock();
     arraySize = arr.size();
-
-    std::cout << "Vector before sorting:\n";
-	for (int i = 0; i < arraySize; i++) {
+    
+    std::cout << "First five elements of vector before sorting:\n";
+	for (int i = 0; i < 5; i++) {
 		std::cout << arr[i]<<" ";
 	}
     std::cout << std::endl;
     
     pthread_t tid[numOfThreads]; //ids of sorting threads
+    auto t1 = Clock::now();
     for(long i=0;i<numOfThreads;i++) { //creation of sorting threads
         pthread_create(&tid[i],NULL,sort_threads,NULL);
     }
@@ -152,15 +154,17 @@ int main() {
     pthread_create(&tid_merge,NULL,merge_thread,NULL);
     pthread_join(tid_merge,NULL);
 
-    t2 = clock();
-     
-	std::cout << "\nVector Obtained After Sorting\n";
-	for (int i = 0; i < arraySize; i++) 
+    auto t2 = Clock::now();
+    
+	std::cout << "First five elements of vector after sorting:\n";
+	for (int i = 0; i < 5; i++) 
     {
 		std::cout << arr[i] << ' ';
 	}
     std::cout<<std::endl<<std::endl;
-    double secsElapsed = (t2 - t1)/(double)CLOCKS_PER_SEC;
-    std::cout<<"Time Elapsed in seconds: " << secsElapsed<<std::endl;
+    
+    std::chrono::duration<long double, std::milli> ms_double = t2 - t1; //difference between two in milliseconds
+    std::cout<<"Time Elapsed in milliseconds: " << ms_double.count() << " ms" <<std::endl;
+
     return 0;
 }
